@@ -96,12 +96,19 @@ export const CarForm = ({ onSubmit, initialData }: CarFormProps) => {
 
         <div className="space-y-2">
           <Label htmlFor="set">Set / Colección</Label>
-          <Input
-            id="set"
-            placeholder="Ej: Hot Wheels Premium"
+          <Select
             value={formData.set}
-            onChange={(e) => setFormData({ ...formData, set: e.target.value })}
-          />
+            onValueChange={(value) => setFormData({ ...formData, set: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona el set" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Básico">Básico</SelectItem>
+              <SelectItem value="Premium">Premium</SelectItem>
+              <SelectItem value="Red Line">Red Line</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
