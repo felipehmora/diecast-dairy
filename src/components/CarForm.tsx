@@ -101,7 +101,7 @@ export const CarForm = ({ onSubmit, initialData }: CarFormProps) => {
             onValueChange={(value) => setFormData({ ...formData, set: value })}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona el set" />
+              <SelectValue placeholder="Básico" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Básico">Básico</SelectItem>
