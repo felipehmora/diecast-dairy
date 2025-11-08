@@ -6,7 +6,7 @@ import { CarForm } from "@/components/CarForm";
 import { CarGrid } from "@/components/CarGrid";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
+import * as ExcelJS from "exceljs";
 
 export interface Car {
   id: string;
@@ -60,28 +60,83 @@ const Index = () => {
     toast.success("Carrito actualizado");
   };
 
-  const handleExportToExcel = () => {
+  const handleExportToExcel = async () => {
     if (cars.length === 0) {
       toast.error("No hay carritos para exportar");
       return;
     }
 
-    const exportData = cars.map((car) => ({
-      Modelo: car.model,
-      Color: car.color,
-      Año: car.year,
-      Estado: car.condition,
-      "Set/Colección": car.set,
-      Cantidad: car.quantity,
-      "Fecha de Creación": new Date(car.createdAt).toLocaleDateString(),
-    }));
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Colección");
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Colección");
+    // Definir columnas
+    worksheet.columns = [
+      { header: "Foto", key: "photo", width: 15 },
+      { header: "Modelo", key: "model", width: 20 },
+      { header: "Color", key: "color", width: 15 },
+      { header: "Año", key: "year", width: 10 },
+      { header: "Estado", key: "condition", width: 15 },
+      { header: "Set/Colección", key: "set", width: 20 },
+      { header: "Cantidad", key: "quantity", width: 10 },
+      { header: "Fecha de Creación", key: "createdAt", width: 18 },
+    ];
 
-    XLSX.writeFile(workbook, `coleccion-carritos-${new Date().toISOString().split("T")[0]}.xlsx`);
-    toast.success("Colección exportada a Excel");
+    // Agregar datos y fotos
+    for (let i = 0; i < cars.length; i++) {
+      const car = cars[i];
+      const row = worksheet.addRow({
+        photo: "",
+        model: car.model,
+        color: car.color,
+        year: car.year,
+        condition: car.condition,
+        set: car.set,
+        quantity: car.quantity,
+        createdAt: new Date(car.createdAt).toLocaleDateString(),
+      });
+
+      // Ajustar altura de la fila para la imagen
+      row.height = 80;
+
+      // Agregar imagen si existe
+      if (car.photo) {
+        try {
+          const imageId = workbook.addImage({
+            base64: car.photo,
+            extension: "png",
+          });
+
+          worksheet.addImage(imageId, {
+            tl: { col: 0, row: i + 1 },
+            ext: { width: 100, height: 100 },
+          });
+        } catch (error) {
+          console.error("Error al agregar imagen:", error);
+        }
+      }
+    }
+
+    // Estilizar encabezados
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFE0E0E0" },
+    };
+
+    // Generar y descargar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `coleccion-carritos-${new Date().toISOString().split("T")[0]}.xlsx`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+
+    toast.success("Colección exportada a Excel con fotos");
   };
 
   return (
