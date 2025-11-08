@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Plus, FileDown } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, FileDown, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CollectionHeader } from "@/components/CollectionHeader";
 import { CarForm } from "@/components/CarForm";
@@ -7,6 +7,7 @@ import { CarGrid } from "@/components/CarGrid";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import * as ExcelJS from "exceljs";
+import Papa from "papaparse";
 
 export interface Car {
   id: string;
@@ -23,6 +24,7 @@ export interface Car {
 const Index = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const savedCars = localStorage.getItem("carCollection");
@@ -139,6 +141,77 @@ const Index = () => {
     toast.success("Colección exportada a Excel con fotos");
   };
 
+  const handleImportFromCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      toast.error("Por favor selecciona un archivo CSV válido");
+      return;
+    }
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          const importedCars: Car[] = [];
+          const errors: string[] = [];
+
+          results.data.forEach((row: any, index: number) => {
+            // Validar campos requeridos
+            if (!row.Modelo || !row.Color || !row.Año || !row.Estado || !row["Set/Colección"] || !row.Cantidad) {
+              errors.push(`Fila ${index + 2}: Faltan campos obligatorios`);
+              return;
+            }
+
+            const newCar: Car = {
+              id: crypto.randomUUID(),
+              model: row.Modelo.trim(),
+              color: row.Color.trim(),
+              year: row.Año.toString().trim(),
+              condition: row.Estado.trim(),
+              set: row["Set/Colección"].trim(),
+              quantity: parseInt(row.Cantidad) || 1,
+              photo: row.Foto || undefined,
+              createdAt: new Date().toISOString(),
+            };
+
+            importedCars.push(newCar);
+          });
+
+          if (errors.length > 0) {
+            toast.error(`Se encontraron ${errors.length} errores en el archivo`);
+            console.error("Errores de importación:", errors);
+            return;
+          }
+
+          if (importedCars.length === 0) {
+            toast.error("No se encontraron carritos válidos en el archivo");
+            return;
+          }
+
+          // Agregar carritos importados a la colección
+          const updatedCars = [...importedCars, ...cars];
+          saveCars(updatedCars);
+          toast.success(`${importedCars.length} carritos importados exitosamente`);
+        } catch (error) {
+          console.error("Error al procesar CSV:", error);
+          toast.error("Error al procesar el archivo CSV");
+        }
+      },
+      error: (error) => {
+        console.error("Error al leer CSV:", error);
+        toast.error("Error al leer el archivo CSV");
+      },
+    });
+
+    // Limpiar input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       <CollectionHeader totalCars={cars.length} />
@@ -153,6 +226,23 @@ const Index = () => {
           </div>
           
           <div className="flex gap-3">
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-5 w-5" />
+              Importar CSV
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              onChange={handleImportFromCSV}
+              className="hidden"
+            />
+            
             <Button 
               size="lg" 
               variant="outline" 
