@@ -11,13 +11,16 @@ import Papa from "papaparse";
 
 export interface Car {
   id: string;
+  number?: string;
   model: string;
   color: string;
   year: string;
   condition: string;
   set: string;
   quantity: number;
+  total?: number;
   photo?: string;
+  exhibited?: boolean;
   createdAt: string;
 }
 
@@ -74,12 +77,15 @@ const Index = () => {
     // Definir columnas
     worksheet.columns = [
       { header: "Foto", key: "photo", width: 15 },
+      { header: "Número", key: "number", width: 12 },
       { header: "Modelo", key: "model", width: 20 },
       { header: "Color", key: "color", width: 15 },
       { header: "Año", key: "year", width: 10 },
       { header: "Estado", key: "condition", width: 15 },
       { header: "Set/Colección", key: "set", width: 20 },
       { header: "Cantidad", key: "quantity", width: 10 },
+      { header: "Total", key: "total", width: 10 },
+      { header: "Exhibido", key: "exhibited", width: 10 },
       { header: "Fecha de Creación", key: "createdAt", width: 18 },
     ];
 
@@ -88,12 +94,15 @@ const Index = () => {
       const car = cars[i];
       const row = worksheet.addRow({
         photo: "",
+        number: car.number || "",
         model: car.model,
         color: car.color,
         year: car.year,
         condition: car.condition,
         set: car.set,
         quantity: car.quantity,
+        total: car.total || "",
+        exhibited: car.exhibited ? "Sí" : "No",
         createdAt: new Date(car.createdAt).toLocaleDateString(),
       });
 
@@ -161,19 +170,22 @@ const Index = () => {
           results.data.forEach((row: any, index: number) => {
             // Validar campos requeridos
             if (!row.Modelo || !row.Color || !row.Año || !row.Estado || !row["Set/Colección"] || !row.Cantidad) {
-              errors.push(`Fila ${index + 2}: Faltan campos obligatorios`);
+              errors.push(`Fila ${index + 2}: Faltan campos obligatorios (Modelo, Color, Año, Estado, Set/Colección, Cantidad)`);
               return;
             }
 
             const newCar: Car = {
               id: crypto.randomUUID(),
+              number: row.Número?.toString().trim() || undefined,
               model: row.Modelo.trim(),
               color: row.Color.trim(),
               year: row.Año.toString().trim(),
               condition: row.Estado.trim(),
               set: row["Set/Colección"].trim(),
               quantity: parseInt(row.Cantidad) || 1,
+              total: row.Total ? parseInt(row.Total) : undefined,
               photo: row.Foto || undefined,
+              exhibited: row.Exhibido ? (row.Exhibido.toLowerCase() === 'sí' || row.Exhibido.toLowerCase() === 'si' || row.Exhibido === '1' || row.Exhibido.toLowerCase() === 'true') : false,
               createdAt: new Date().toISOString(),
             };
 

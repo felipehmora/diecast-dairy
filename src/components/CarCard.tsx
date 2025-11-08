@@ -3,7 +3,7 @@ import { Car } from "@/pages/Index";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Package } from "lucide-react";
+import { Pencil, Trash2, Package, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CarForm } from "./CarForm";
 import {
@@ -73,9 +73,18 @@ export const CarCard = ({ car, onDelete, onEdit }: CarCardProps) => {
               x{car.quantity}
             </Badge>
           )}
+          {car.exhibited && (
+            <Badge className="absolute left-2 top-2 bg-blue-500 text-white shadow-lg flex items-center gap-1">
+              <Eye className="h-3 w-3" />
+              Exhibido
+            </Badge>
+          )}
         </div>
 
         <CardContent className="p-4">
+          {car.number && (
+            <p className="text-xs text-muted-foreground mb-1">#{car.number}</p>
+          )}
           <h3 className="font-bold text-lg truncate mb-1">{car.model}</h3>
           <div className="space-y-1 text-sm text-muted-foreground">
             <p>
@@ -87,6 +96,11 @@ export const CarCard = ({ car, onDelete, onEdit }: CarCardProps) => {
             {car.set && (
               <p className="truncate">
                 <span className="font-medium">Set:</span> {car.set}
+              </p>
+            )}
+            {car.total !== undefined && (
+              <p>
+                <span className="font-medium">Total:</span> ${car.total}
               </p>
             )}
           </div>

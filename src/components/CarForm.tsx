@@ -13,13 +13,16 @@ interface CarFormProps {
 
 export const CarForm = ({ onSubmit, initialData }: CarFormProps) => {
   const [formData, setFormData] = useState({
+    number: initialData?.number || "",
     model: initialData?.model || "",
     color: initialData?.color || "",
     year: initialData?.year || "",
     condition: initialData?.condition || "",
     set: initialData?.set || "",
     quantity: initialData?.quantity || 1,
+    total: initialData?.total || undefined,
     photo: initialData?.photo || "",
+    exhibited: initialData?.exhibited || false,
   });
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +44,16 @@ export const CarForm = ({ onSubmit, initialData }: CarFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="number">Número</Label>
+          <Input
+            id="number"
+            placeholder="Ej: 001"
+            value={formData.number}
+            onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="model">Modelo *</Label>
           <Input
@@ -122,6 +135,31 @@ export const CarForm = ({ onSubmit, initialData }: CarFormProps) => {
             required
           />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="total">Total</Label>
+          <Input
+            id="total"
+            type="number"
+            min="0"
+            placeholder="Precio total"
+            value={formData.total || ""}
+            onChange={(e) => setFormData({ ...formData, total: e.target.value ? parseInt(e.target.value) : undefined })}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="exhibited" className="flex items-center gap-2 cursor-pointer">
+          <input
+            id="exhibited"
+            type="checkbox"
+            checked={formData.exhibited}
+            onChange={(e) => setFormData({ ...formData, exhibited: e.target.checked })}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+          <span>Exhibido</span>
+        </Label>
       </div>
 
       <div className="space-y-2">
