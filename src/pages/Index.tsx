@@ -1,10 +1,20 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, FileDown, Upload } from "lucide-react";
+import { Plus, FileDown, Upload, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CollectionHeader } from "@/components/CollectionHeader";
 import { CarForm } from "@/components/CarForm";
 import { CarGrid } from "@/components/CarGrid";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import * as ExcelJS from "exceljs";
 import Papa from "papaparse";
@@ -27,6 +37,7 @@ export interface Car {
 const Index = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -63,6 +74,12 @@ const Index = () => {
     const updatedCars = cars.map((car) => (car.id === updatedCar.id ? updatedCar : car));
     saveCars(updatedCars);
     toast.success("Carrito actualizado");
+  };
+
+  const handleClearCollection = () => {
+    saveCars([]);
+    setIsClearDialogOpen(false);
+    toast.success("Colección eliminada completamente");
   };
 
   const handleExportToExcel = async () => {
@@ -292,6 +309,17 @@ const Index = () => {
               <FileDown className="h-5 w-5" />
               Exportar a Excel
             </Button>
+
+            <Button 
+              size="lg" 
+              variant="destructive" 
+              className="gap-2"
+              onClick={() => setIsClearDialogOpen(true)}
+              disabled={cars.length === 0}
+            >
+              <Trash2 className="h-5 w-5" />
+              Limpiar Colección
+            </Button>
             
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
@@ -316,6 +344,27 @@ const Index = () => {
           onEdit={handleEditCar}
         />
       </main>
+
+      <AlertDialog open={isClearDialogOpen} onOpenChange={setIsClearDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Limpiar toda la colección?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente todos los {cars.length} carritos de tu colección.
+              Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleClearCollection}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar Todo
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
