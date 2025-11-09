@@ -165,38 +165,51 @@ const Index = () => {
       complete: (results) => {
         try {
           const importedCars: Car[] = [];
-          const errors: string[] = [];
 
-          results.data.forEach((row: any, index: number) => {
-            // Validar campos requeridos
-            if (!row.Modelo || !row.Color || !row.Año || !row.Estado || !row["Set/Colección"] || !row.Cantidad) {
-              errors.push(`Fila ${index + 2}: Faltan campos obligatorios (Modelo, Color, Año, Estado, Set/Colección, Cantidad)`);
-              return;
-            }
-
-            const newCar: Car = {
-              id: crypto.randomUUID(),
-              number: row.Número?.toString().trim() || undefined,
-              model: row.Modelo.trim(),
-              color: row.Color.trim(),
-              year: row.Año.toString().trim(),
-              condition: row.Estado.trim(),
-              set: row["Set/Colección"].trim(),
-              quantity: parseInt(row.Cantidad) || 1,
-              total: row.Total ? parseInt(row.Total) : undefined,
-              photo: row.Foto || undefined,
-              exhibited: row.Exhibido ? (row.Exhibido.toLowerCase() === 'sí' || row.Exhibido.toLowerCase() === 'si' || row.Exhibido === '1' || row.Exhibido.toLowerCase() === 'true') : false,
-              createdAt: new Date().toISOString(),
+          results.data.forEach((row: any) => {
+            // Buscar valores en diferentes posibles nombres de columnas (case insensitive)
+            const getColumnValue = (possibleNames: string[]) => {
+              for (const name of possibleNames) {
+                const value = Object.keys(row).find(key => 
+                  key.toLowerCase().trim() === name.toLowerCase()
+                );
+                if (value && row[value]) return row[value];
+              }
+              return null;
             };
 
-            importedCars.push(newCar);
-          });
+            // Intentar obtener valores de diferentes nombres de columnas
+            const model = getColumnValue(['Modelo', 'Model', 'Nombre', 'Name']);
+            const color = getColumnValue(['Color', 'Colour']);
+            const year = getColumnValue(['Año', 'Year', 'Fecha']);
+            const condition = getColumnValue(['Estado', 'Condition', 'Condición']);
+            const set = getColumnValue(['Set/Colección', 'Set', 'Colección', 'Collection', 'Serie']);
+            const quantity = getColumnValue(['Cantidad', 'Quantity', 'Cant', 'Qty']);
+            const number = getColumnValue(['Número', 'Number', 'Num', '#']);
+            const total = getColumnValue(['Total']);
+            const photo = getColumnValue(['Foto', 'Photo', 'Imagen', 'Image']);
+            const exhibited = getColumnValue(['Exhibido', 'Exhibited', 'Display']);
 
-          if (errors.length > 0) {
-            toast.error(`Se encontraron ${errors.length} errores en el archivo`);
-            console.error("Errores de importación:", errors);
-            return;
-          }
+            // Si hay al menos un modelo, crear el carrito
+            if (model) {
+              const newCar: Car = {
+                id: crypto.randomUUID(),
+                number: number?.toString().trim() || undefined,
+                model: model.toString().trim(),
+                color: color?.toString().trim() || 'Sin especificar',
+                year: year?.toString().trim() || new Date().getFullYear().toString(),
+                condition: condition?.toString().trim() || 'Desconocido',
+                set: set?.toString().trim() || 'General',
+                quantity: quantity ? parseInt(quantity.toString()) || 1 : 1,
+                total: total ? parseInt(total.toString()) : undefined,
+                photo: photo?.toString().trim() || undefined,
+                exhibited: exhibited ? (exhibited.toString().toLowerCase() === 'sí' || exhibited.toString().toLowerCase() === 'si' || exhibited.toString() === '1' || exhibited.toString().toLowerCase() === 'true') : false,
+                createdAt: new Date().toISOString(),
+              };
+
+              importedCars.push(newCar);
+            }
+          });
 
           if (importedCars.length === 0) {
             toast.error("No se encontraron carritos válidos en el archivo");
