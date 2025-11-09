@@ -273,23 +273,23 @@ const Index = () => {
       <CollectionHeader totalCars={cars.length} />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Mi Colección</h2>
-            <p className="text-muted-foreground mt-1">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Mi Colección</h2>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Administra tus carritos a escala
             </p>
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Button 
-              size="lg" 
+              size="default"
               variant="outline" 
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="h-5 w-5" />
-              Importar CSV
+              <Upload className="h-4 w-4" />
+              <span className="sm:inline">Importar CSV</span>
             </Button>
             <input
               ref={fileInputRef}
@@ -300,31 +300,31 @@ const Index = () => {
             />
             
             <Button 
-              size="lg" 
+              size="default"
               variant="outline" 
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
               onClick={handleExportToExcel}
               disabled={cars.length === 0}
             >
-              <FileDown className="h-5 w-5" />
-              Exportar a Excel
+              <FileDown className="h-4 w-4" />
+              <span className="sm:inline">Exportar Excel</span>
             </Button>
 
             <Button 
-              size="lg" 
+              size="default"
               variant="destructive" 
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
               onClick={() => setIsClearDialogOpen(true)}
               disabled={cars.length === 0}
             >
-              <Trash2 className="h-5 w-5" />
-              Limpiar Colección
+              <Trash2 className="h-4 w-4" />
+              <span className="sm:inline">Limpiar</span>
             </Button>
             
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-all">
-                  <Plus className="h-5 w-5" />
+                <Button size="default" className="gap-2 w-full sm:w-auto shadow-lg hover:shadow-xl transition-all">
+                  <Plus className="h-4 w-4" />
                   Agregar Carrito
                 </Button>
               </DialogTrigger>
