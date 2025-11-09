@@ -192,6 +192,20 @@ const Index = () => {
 
             // Si hay al menos un modelo, crear el carrito
             if (model) {
+              // Validar y procesar la foto - debe estar en formato base64
+              let processedPhoto: string | undefined = undefined;
+              if (photo) {
+                const photoStr = photo.toString().trim();
+                // Verificar si la foto es una cadena base64 válida (debe empezar con data:image)
+                if (photoStr.startsWith('data:image/')) {
+                  processedPhoto = photoStr;
+                } else if (photoStr.match(/^[A-Za-z0-9+/=]+$/)) {
+                  // Si es base64 sin el prefijo, agregarlo
+                  processedPhoto = `data:image/png;base64,${photoStr}`;
+                }
+                // Si es una URL o ruta de archivo, no se puede importar directamente desde CSV
+              }
+
               const newCar: Car = {
                 id: crypto.randomUUID(),
                 number: number?.toString().trim() || undefined,
@@ -202,7 +216,7 @@ const Index = () => {
                 set: set?.toString().trim() || 'General',
                 quantity: quantity ? parseInt(quantity.toString()) || 1 : 1,
                 total: total ? parseInt(total.toString()) : undefined,
-                photo: photo?.toString().trim() || undefined,
+                photo: processedPhoto,
                 exhibited: exhibited ? (exhibited.toString().toLowerCase() === 'sí' || exhibited.toString().toLowerCase() === 'si' || exhibited.toString() === '1' || exhibited.toString().toLowerCase() === 'true') : false,
                 createdAt: new Date().toISOString(),
               };
