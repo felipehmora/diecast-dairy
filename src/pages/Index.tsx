@@ -281,60 +281,66 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Button 
-              size="default"
-              variant="outline" 
-              className="gap-2 w-full sm:w-auto"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="h-4 w-4" />
-              <span className="sm:inline">Importar CSV</span>
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              onChange={handleImportFromCSV}
-              className="hidden"
-            />
-            
-            <Button 
-              size="default"
-              variant="outline" 
-              className="gap-2 w-full sm:w-auto"
-              onClick={handleExportToExcel}
-              disabled={cars.length === 0}
-            >
-              <FileDown className="h-4 w-4" />
-              <span className="sm:inline">Exportar Excel</span>
-            </Button>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            {/* Grupo de acciones de importación/exportación */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button 
+                size="default"
+                variant="outline" 
+                className="gap-2 w-full sm:w-auto"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="h-4 w-4" />
+                <span>Importar CSV</span>
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleImportFromCSV}
+                className="hidden"
+              />
+              
+              <Button 
+                size="default"
+                variant="outline" 
+                className="gap-2 w-full sm:w-auto"
+                onClick={handleExportToExcel}
+                disabled={cars.length === 0}
+              >
+                <FileDown className="h-4 w-4" />
+                <span>Exportar Excel</span>
+              </Button>
+            </div>
 
-            <Button 
-              size="default"
-              variant="destructive" 
-              className="gap-2 w-full sm:w-auto"
-              onClick={() => setIsClearDialogOpen(true)}
-              disabled={cars.length === 0}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span className="sm:inline">Limpiar</span>
-            </Button>
-            
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="default" className="gap-2 w-full sm:w-auto shadow-lg hover:shadow-xl transition-all">
-                  <Plus className="h-4 w-4" />
-                  Agregar Carrito
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl">Agregar Nuevo Carrito</DialogTitle>
-                </DialogHeader>
-                <CarForm onSubmit={handleAddCar} />
-              </DialogContent>
-            </Dialog>
+            {/* Grupo de acciones principales */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button 
+                size="default"
+                variant="destructive" 
+                className="gap-2 w-full sm:w-auto"
+                onClick={() => setIsClearDialogOpen(true)}
+                disabled={cars.length === 0}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Limpiar</span>
+              </Button>
+              
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="default" className="gap-2 w-full sm:w-auto shadow-lg hover:shadow-xl transition-all">
+                    <Plus className="h-4 w-4" />
+                    Agregar Carrito
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl">Agregar Nuevo Carrito</DialogTitle>
+                  </DialogHeader>
+                  <CarForm onSubmit={handleAddCar} />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
