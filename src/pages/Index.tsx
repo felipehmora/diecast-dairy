@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import * as ExcelJS from "exceljs";
 import Papa from "papaparse";
@@ -281,9 +282,9 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            {/* Grupo de acciones de importación/exportación */}
-            <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+            {/* Grupo de importación/exportación */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:p-2 sm:rounded-lg sm:bg-muted/50">
               <Button 
                 size="default"
                 variant="outline" 
@@ -313,8 +314,11 @@ const Index = () => {
               </Button>
             </div>
 
+            {/* Separador visual */}
+            <Separator orientation="vertical" className="hidden sm:block h-10" />
+
             {/* Grupo de acciones principales */}
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 sm:p-2 sm:rounded-lg sm:bg-muted/50">
               <Button 
                 size="default"
                 variant="destructive" 
